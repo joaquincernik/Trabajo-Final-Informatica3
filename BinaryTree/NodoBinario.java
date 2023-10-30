@@ -1,16 +1,19 @@
 public class NodoBinario {
     
     private String nombre;
+    public int height;
     int stock;
     
     NodoBinario left;
     NodoBinario right;
+    
 
     public NodoBinario(String nombre, int valor){
         stock=valor;
         this.nombre = nombre;
         left=null;
         right=null;
+        height=1;//solo por conveniencia,
     }
     
     public NodoBinario(String nombre, int valor,NodoBinario lft,NodoBinario rght){
@@ -18,10 +21,14 @@ public class NodoBinario {
         this.nombre = nombre;
         left=lft;
         right=rght;
+        height=1;
     }
     
      public String getElement(){
         return this.nombre;
+    }
+    public int getHeight(){
+        return this.height;
     }
      
     public String toString(){
@@ -40,6 +47,7 @@ public class NodoBinario {
 //    public void setRight(NodoBinario x){
 //        right=x;
 //    }
+    
     
     public void modificarStock(int stockAEliminar){
         if((this.stock - stockAEliminar) <= 0){
