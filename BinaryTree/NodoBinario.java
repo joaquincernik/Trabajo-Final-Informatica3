@@ -1,6 +1,6 @@
 public class NodoBinario {
     
-    private String nombre;
+    public String nombre;
     public int height;
     int stock;
     

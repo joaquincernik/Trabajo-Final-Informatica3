@@ -26,6 +26,13 @@ public class ArbolBinario {
         return root == null;
     }
 
+    public NodoBinario getMaxNode(NodoBinario node){
+        NodoBinario current=node;
+        while(current.right!=null){
+            current=current.right;
+        }
+        return current;
+    }
 
     public int getHeight(NodoBinario nodo) {
         // si el nodo es nulo devuelve 0, esto es util para la insercion
@@ -170,5 +177,124 @@ public class ArbolBinario {
     }
 
     //eliminacion de nodos
+    public void eliminar(String elemento){
+        root=eliminarAvl(root,elemento);
+    }
+    private NodoBinario eliminarAvl(NodoBinario nodoActual,String elemento){
+        if(nodoActual==null){
+        return nodoActual;
+        }
+        
+        //para facilidad de lectura guardamos la comparacion en una variable
+        int comparacion=elemento.trim().toLowerCase().compareTo(nodoActual.getElement().trim().toLowerCase())
+
+        //nombre a buscar menor alfabeticamente que el nombre del producto almacenado en el nodo
+        if(comparacion<0){
+            nodoActual.left=eliminarAvl(nodoActual.left, elemento);
+        }
+        else if(comparacion>0){
+            nodoActual.right=eliminarAvl(nodoActual.right, elemento);
+        }
+        else{
+            //nodo igual a la clave, se elimina
+            
+            //nodo con unico hijo
+            if((nodoActual.left==null)||(nodoActual.right==null)){
+                NodoBinario temp=null;
+                if(temp==nodoActual.left){
+                    temp=nodoActual.right;//guardamos en temp el nodo que no es null
+                }
+                else{
+                    temp=nodoActual.left;//guardamos en temp el nodo que no es null
+                }
+
+                //nodo sin hijos
+                 if(temp==null){
+                    nodoActual=null;//se elimina el nodo    
+                 }
+                 else{
+                    //caso con un hijo
+                    nodoActual=temp;//se reemplaza el valor que almacena el nodo por el valor del hijo distinto de null
+                 }
+            }
+            else{
+                //nodo con dos hijos 
+
+                NodoBinario temp=getMaxNode(nodoActual.left);//se busca el maximo del nodo menor al que queremos borrar
+               //esto se hace para poder enganchar al menor al nodo borrado del lado izquierdo y al mayor del nodo borraro en el lado derecho
+
+               //copiamos la inforamcion de temp
+                nodoActual.nombre=temp.nombre;
+
+                //elimimos el nodo que obtuvimos de temp
+                nodoActual.left=eliminarAvl(nodoActual.left, temp.nombre);
+            }
+
+            //si solo tiene un nodo
+            if(nodoActual==null)
+                return nodoActual;
+
+            //actualizar altura
+            nodoActual.height=Math.max(getHeight(nodoActual.left), getHeight(nodoActual.right))+1;
+            
+            int balance = depth(nodoActual);
+
+            //rotaciones:
+
+            //rotacion derecha
+            if(balance<-1 && depth(nodoActual.left)<=0){
+                return rightRotate(nodoActual);
+            }
+
+            //rotacion izquierda
+            if(balance>1 && depth(nodoActual.left)>=0){
+                return leftRotate(nodoActual);
+            }
+
+            //rotacion doble izquierda-derecha
+            if(balance<-1 && depth(nodoActual.left)>0){
+                nodoActual.left=leftRotate(nodoActual.left);
+                return rightRotate(nodoActual);
+            }
+
+            //rotacion doble derecha-izquierda
+            if(balance>1 && depth(nodoActual.right)<0){
+                nodoActual.right=rightRotate(nodoActual.right);
+                return leftRotate(nodoActual);
+            }
+
+        }
+    }
     
+    //rotaciones
+
+    private NodoBinario rightRotate(NodoBinario nodoActual){
+        //nueva raiz se el que esta a la izquierda de nodo con problemaas
+        NodoBinario nuevaRaiz=nodoActual.left;
+        NodoBinario temp=nuevaRaiz.right;//guardamos el nodo que tiene la nueva raiz a su derecha
+
+        //se realiza la rotacion
+        nuevaRaiz.right=nodoActual;
+        nodoActual.left=temp;
+        
+        //actualizamos las alturas
+        nodoActual.height=Math.max(getHeight(nodoActual.left),getHeight(nodoActual.right));
+        nuevaRaiz.height=Math.max(getHeight(nuevaRaiz.left),getHeight(nuevaRaiz.right));
+        return nuevaRaiz;
+    }
+    
+    private NodoBinario leftRotate(NodoBinario nodoActual){
+        //nueva raiz se el que esta a la derecha de nodo con problemaas
+        NodoBinario nuevaRaiz=nodoActual.right;
+        NodoBinario temp=nuevaRaiz.left;//guardamos el nodo que tiene la nueva raiz a su izquierda
+
+        //se realiza la rotacion
+        nuevaRaiz.left=nodoActual;
+        nodoActual.right=temp;
+        
+        //actualizamos las alturas
+        nodoActual.height=Math.max(getHeight(nodoActual.left),getHeight(nodoActual.right));
+        nuevaRaiz.height=Math.max(getHeight(nuevaRaiz.left),getHeight(nuevaRaiz.right));
+        return nuevaRaiz;
+    }
 }
