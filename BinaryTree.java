@@ -1,6 +1,6 @@
-public class ArbolBinario {
+public class BinaryTree {
 
-    private NodoBinario root = null;
+    private BinaryNode root = null;
 
     /**
      * Inserta un nuevo nodo al arbol binario de busqueda
@@ -9,8 +9,7 @@ public class ArbolBinario {
      * @param stock
      */
 
-     
-    public NodoBinario getRoot() {
+    public BinaryNode getRoot() {
         return root;
     }
 
@@ -26,15 +25,15 @@ public class ArbolBinario {
         return root == null;
     }
 
-    public NodoBinario getMaxNode(NodoBinario node){
-        NodoBinario current=node;
-        while(current.right!=null){
-            current=current.right;
+    public BinaryNode getMaxNode(BinaryNode node) {
+        BinaryNode current = node;
+        while (current.right != null) {
+            current = current.right;
         }
         return current;
     }
 
-    public int getHeight(NodoBinario nodo) {
+    public int getHeight(BinaryNode nodo) {
         // si el nodo es nulo devuelve 0, esto es util para la insercion
         if (nodo == null) {
             return 0;
@@ -43,7 +42,7 @@ public class ArbolBinario {
     }
 
     // Equilibrio arbol AVL
-    public int depth(NodoBinario nodo) {
+    public int depth(BinaryNode nodo) {
         if (nodo == null) {
             return 0;
         }
@@ -53,11 +52,12 @@ public class ArbolBinario {
     public void insertarNodo(String name, int stock) {
         try {
             root = insertarNodo(name, stock, root);
-        } catch (ProductoDuplicadoException e) {
-
+        } catch (DuplicateProductException e) {
+            System.out.println(e.getMessage());
         }
     }
-        /**
+
+    /**
      * Metodo privado recursivo para insertar un nodo en el arbol binario de
      * busqueda
      * 
@@ -65,20 +65,20 @@ public class ArbolBinario {
      * @param stock
      * @param temp
      * @return El nuevo nodo insertado
-     * @throws ProductoDuplicadoException cuando se intenta ingresar un producto ya
+     * @throws DuplicatedProductException cuando se intenta ingresar un producto ya
      *                                    existente en el arbol
      */
-    private NodoBinario insertarNodo(String name, int stock, NodoBinario temp) throws ProductoDuplicadoException {
+    private BinaryNode insertarNodo(String name, int stock, BinaryNode temp) throws DuplicateProductException {
         if (temp == null) {
-            temp = new NodoBinario(name, stock);
+            temp = new BinaryNode(name, stock);
         } else {
-            int comparacion = name.trim().toLowerCase().compareTo(temp.getElement().trim().toLowerCase());
+            int comparacion = name.trim().toLowerCase().compareTo(temp.getName().trim().toLowerCase());
             if (comparacion >= 1) { // valor es string ahora
                 temp.right = insertarNodo(name, stock, temp.right);
             } else if (comparacion <= 1) {
                 temp.left = insertarNodo(name, stock, temp.left);
             } else {
-                throw new ProductoDuplicadoException("El producto con el nombre '" + name + "' ya existe en el árbol.");
+                throw new DuplicateProductException("El producto con el nombre '" + name + "' ya existe en el árbol.");
             }
         }
         temp.height = 1 + Math.max(getHeight(temp.left), getHeight(temp.right));
@@ -93,7 +93,7 @@ public class ArbolBinario {
          * /
          * 5(0)
          */
-        if (equilibrio < -1 && (name.trim().toLowerCase().compareTo(temp.left.getElement().trim().toLowerCase()) < 0)) {
+        if (equilibrio < -1 && (name.trim().toLowerCase().compareTo(temp.left.getName().trim().toLowerCase()) < 0)) {
             return rightRotate(temp);
         }
         // caso de rotacion simple izquierda
@@ -105,7 +105,7 @@ public class ArbolBinario {
          * \
          * 20(0)
          */
-        if (equilibrio > 1 && (name.trim().toLowerCase().compareTo(temp.right.getElement().trim().toLowerCase()) > 0)) {
+        if (equilibrio > 1 && (name.trim().toLowerCase().compareTo(temp.right.getName().trim().toLowerCase()) > 0)) {
             return leftRotate(temp);
         }
         // caso de rotacion doble izquierda derecha
@@ -117,7 +117,7 @@ public class ArbolBinario {
          * \
          * 8(0)
          */
-        if (equilibrio < -1 && (name.trim().toLowerCase().compareTo(temp.left.getElement().trim().toLowerCase()) > 0)) {
+        if (equilibrio < -1 && (name.trim().toLowerCase().compareTo(temp.left.getName().trim().toLowerCase()) > 0)) {
             temp.left = leftRotate(temp.left);
             return rightRotate(temp);
         }
@@ -130,7 +130,7 @@ public class ArbolBinario {
          * 12(-1)
          * 8(0)
          */
-        if (equilibrio > 1 && (name.trim().toLowerCase().compareTo(temp.left.getElement().trim().toLowerCase()) < 0)) {
+        if (equilibrio > 1 && (name.trim().toLowerCase().compareTo(temp.left.getName().trim().toLowerCase()) < 0)) {
             temp.right = rightRotate(temp.right);
             return leftRotate(temp);
         }
@@ -138,27 +138,34 @@ public class ArbolBinario {
 
     }
 
+    public void buscarProducto(String producto){
+        try{
+             System.out.println(buscarProducto(root,producto).toString());
+        }
+        catch(NotFoundedProductException e){
+            System.out.println(e.getMessage());
+        }
+    }
     /**
      * Permite buscar un producto existente en el arbol binario de busqueda
      * 
      * @param t
      * @param elemento
      * @return El nodo encontrado
-     * @throws ProductoNoEncontradoException cuando el producto a buscar no se
+     * @throws NotFoundedProductException cuando el producto a buscar no se
      *                                       encuentra en el arbol
      */
-    public NodoBinario buscarProducto(NodoBinario t, String elemento) throws ProductoNoEncontradoException {
+    private BinaryNode buscarProducto(BinaryNode t, String elemento) throws NotFoundedProductException {
         if (t == null) {
-            throw new ProductoNoEncontradoException("No se pudo encontrar el producto");
+            throw new NotFoundedProductException("Product "+elemento+" was not founded in inventoy");
         }
-        int comparacion = t.getElement().trim().toLowerCase().compareTo(elemento.trim().toLowerCase());
+        int comparacion =elemento.trim().toLowerCase().compareTo(t.getName().trim().toLowerCase());
 
         if (comparacion == 0) {
             // Producto encontrado
             return t;
         } else {
-            if (comparacion > 0) {
-
+            if (comparacion < 0) {
                 return buscarProducto(t.left, elemento);
             } else {
 
@@ -167,26 +174,34 @@ public class ArbolBinario {
         }
     }
 
-    public void modificarStock(NodoBinario t, String elemento, int stockAEliminar) {
+ 
+    public void modifyStock(String elemento, int stockAModificar) {
         try {
-            NodoBinario nodo = this.buscarProducto(t, elemento);
-            nodo.modificarStock(stockAEliminar);
-        } catch (ProductoNoEncontradoException e) {
+            BinaryNode nodo = this.buscarProducto(root, elemento);
+            nodo.modifyStock(stockAModificar);
+        } catch (NotFoundedProductException e) {
+            System.out.println(e.getMessage());
         }
 
     }
 
-    //eliminacion de nodos
-    public void eliminar(String elemento){
-        root=eliminarAvl(root,elemento);
+    // eliminacion de nodos
+    public void eliminar(String elemento) {
+        try{
+            root = eliminarAvl(root, elemento);
+        }
+        catch(NotFoundedProductException e){
+            System.out.println(e.getMessage());
+        }
     }
-    private NodoBinario eliminarAvl(NodoBinario nodoActual,String elemento){
+
+    private BinaryNode eliminarAvl(BinaryNode nodoActual,String elemento) throws NotFoundedProductException{
         if(nodoActual==null){
-        return nodoActual;
+        throw new NotFoundedProductException("Product "+elemento+" was not founded in inventoy");
         }
         
         //para facilidad de lectura guardamos la comparacion en una variable
-        int comparacion=elemento.trim().toLowerCase().compareTo(nodoActual.getElement().trim().toLowerCase())
+        int comparacion=elemento.trim().toLowerCase().compareTo(nodoActual.getName().trim().toLowerCase());
 
         //nombre a buscar menor alfabeticamente que el nombre del producto almacenado en el nodo
         if(comparacion<0){
@@ -200,7 +215,7 @@ public class ArbolBinario {
             
             //nodo con unico hijo
             if((nodoActual.left==null)||(nodoActual.right==null)){
-                NodoBinario temp=null;
+                BinaryNode temp=null;
                 if(temp==nodoActual.left){
                     temp=nodoActual.right;//guardamos en temp el nodo que no es null
                 }
@@ -220,14 +235,15 @@ public class ArbolBinario {
             else{
                 //nodo con dos hijos 
 
-                NodoBinario temp=getMaxNode(nodoActual.left);//se busca el maximo del nodo menor al que queremos borrar
+                BinaryNode temp=getMaxNode(nodoActual.left);//se busca el maximo del nodo menor al que queremos borrar
                //esto se hace para poder enganchar al menor al nodo borrado del lado izquierdo y al mayor del nodo borraro en el lado derecho
 
                //copiamos la inforamcion de temp
-                nodoActual.nombre=temp.nombre;
+                nodoActual.setName(temp.getName());
+                nodoActual.setStock(temp.getStock());
 
                 //elimimos el nodo que obtuvimos de temp
-                nodoActual.left=eliminarAvl(nodoActual.left, temp.nombre);
+                nodoActual.left=eliminarAvl(nodoActual.left, temp.getName());
             }
 
             //si solo tiene un nodo
@@ -264,37 +280,38 @@ public class ArbolBinario {
             }
 
         }
+        return nodoActual;
     }
-    
-    //rotaciones
 
-    private NodoBinario rightRotate(NodoBinario nodoActual){
-        //nueva raiz se el que esta a la izquierda de nodo con problemaas
-        NodoBinario nuevaRaiz=nodoActual.left;
-        NodoBinario temp=nuevaRaiz.right;//guardamos el nodo que tiene la nueva raiz a su derecha
+    // rotaciones
 
-        //se realiza la rotacion
-        nuevaRaiz.right=nodoActual;
-        nodoActual.left=temp;
-        
-        //actualizamos las alturas
-        nodoActual.height=Math.max(getHeight(nodoActual.left),getHeight(nodoActual.right));
-        nuevaRaiz.height=Math.max(getHeight(nuevaRaiz.left),getHeight(nuevaRaiz.right));
+    private BinaryNode rightRotate(BinaryNode nodoActual) {
+        // nueva raiz se el que esta a la izquierda de nodo con problemaas
+        BinaryNode nuevaRaiz = nodoActual.left;
+        BinaryNode temp = nuevaRaiz.right;// guardamos el nodo que tiene la nueva raiz a su derecha
+
+        // se realiza la rotacion
+        nuevaRaiz.right = nodoActual;
+        nodoActual.left = temp;
+
+        // actualizamos las alturas
+        nodoActual.height = Math.max(getHeight(nodoActual.left), getHeight(nodoActual.right));
+        nuevaRaiz.height = Math.max(getHeight(nuevaRaiz.left), getHeight(nuevaRaiz.right));
         return nuevaRaiz;
     }
-    
-    private NodoBinario leftRotate(NodoBinario nodoActual){
-        //nueva raiz se el que esta a la derecha de nodo con problemaas
-        NodoBinario nuevaRaiz=nodoActual.right;
-        NodoBinario temp=nuevaRaiz.left;//guardamos el nodo que tiene la nueva raiz a su izquierda
 
-        //se realiza la rotacion
-        nuevaRaiz.left=nodoActual;
-        nodoActual.right=temp;
-        
-        //actualizamos las alturas
-        nodoActual.height=Math.max(getHeight(nodoActual.left),getHeight(nodoActual.right));
-        nuevaRaiz.height=Math.max(getHeight(nuevaRaiz.left),getHeight(nuevaRaiz.right));
+    private BinaryNode leftRotate(BinaryNode nodoActual) {
+        // nueva raiz se el que esta a la derecha de nodo con problemaas
+        BinaryNode nuevaRaiz = nodoActual.right;
+        BinaryNode temp = nuevaRaiz.left;// guardamos el nodo que tiene la nueva raiz a su izquierda
+
+        // se realiza la rotacion
+        nuevaRaiz.left = nodoActual;
+        nodoActual.right = temp;
+
+        // actualizamos las alturas
+        nodoActual.height = Math.max(getHeight(nodoActual.left), getHeight(nodoActual.right));
+        nuevaRaiz.height = Math.max(getHeight(nuevaRaiz.left), getHeight(nuevaRaiz.right));
         return nuevaRaiz;
     }
 }
